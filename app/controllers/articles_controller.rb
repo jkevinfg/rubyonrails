@@ -1,5 +1,7 @@
 class ArticlesController < ApplicationController
-  
+
+  http_basic_authenticate_with name: "jkevinfg", password: "password", except: [:index, :show]
+
   def index
     @articles = Article.all
   end
@@ -22,8 +24,28 @@ class ArticlesController < ApplicationController
     end
   end
 
+  def edit
+    @article = Article.find(params[:id])
+  end
+
+  def update
+    @article = Article.find(params[:id])
+
+    if @article.update(article_params)
+      redirect_to @article
+    else
+      render :edit, status: :unprocessable_entity #vuelve al formulario con mensajes de error
+    end
+  end
+  
+  def destroy
+    @article = Article.find(params[:id])
+    @article.destroy
+
+    redirect_to root_path, status: :see_other
+  end
   private #Strong Parameters  => para filtrar los parámetros. Piense en ello como una tipificación fuerte para parámetros.
     def article_params
-      params.require(:article).permit(:title, :body)
+      params.require(:article).permit(:title, :body, :status)
     end
 end
